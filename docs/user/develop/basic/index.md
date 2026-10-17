@@ -45,15 +45,15 @@ export function apply(ctx: Context) {
 
 ## Register it in cordis.yml
 
-Run `pwd` from the repository root, then create `scratch-plugin/cordis.yml` as a Web overlay that inserts the local plugin. Replace `/absolute/path/to/deepseek-harness` below with the printed path:
+Create `scratch-plugin/cordis.yml` as a Web overlay that inserts the local plugin:
 
 ```yaml
 - insert:
     - id: hello
-      name: '/absolute/path/to/deepseek-harness/scratch-plugin/src/my-plugin.ts'
+      name: './src/my-plugin.ts'
 ```
 
-The plugin path must be absolute. A patch file contributes configuration but does not change the profile directory from which the loader resolves module paths.
+A relative path inside an `insert` list is anchored **beside the patch file itself** — here `scratch-plugin/` — and rewritten to an absolute `file://` URL when the patch loads, so the path above resolves to `scratch-plugin/src/my-plugin.ts`. Absolute paths and `file://` URLs are accepted as well. Bare package names (such as `@deepseek-ai/xxx`) are not treated as paths: they stay literal and resolve as packages, first from the dsh installation, then from the profile's `node_modules`. Patches that target an existing row by `id` outside an `insert` list are not anchored this way.
 
 Start the Web UI with that overlay:
 
@@ -62,6 +62,7 @@ pnpm dsh web --patch ./scratch-plugin/cordis.yml
 ```
 
 Open `http://127.0.0.1:3080`. The terminal prints `[hello-plugin] plugin loaded!` during startup.
+
 
 ## Automatic cleanup
 
